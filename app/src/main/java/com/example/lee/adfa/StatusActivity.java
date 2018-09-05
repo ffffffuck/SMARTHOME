@@ -21,18 +21,39 @@ import org.eclipse.paho.client.mqttv3.MqttCallback;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class StatusActivity extends AppCompatActivity {
     String serverurl;
     MqttAndroidClient client;
 
+    String topic = "nodemcu";
+    String arduinotopic = "arduino";
+
+    String TV;
+    String AIRCON ;
+    String WINDOW;
+    String TEMPERTURE;
+    String HUMIDITY ;
+
     private TextView subText;
     private Switch ledStatus;
-    String topic = "nodemcu";
+
 
     private TextView tvsubText;
     private Switch tvStatus;
-    String tvtopic = "TVMQTT";
+
+    private TextView airconsubText;
+    private Switch airconStatus;
+
+
+    private TextView windowsubText;
+    private Switch windowStatus;
+
+    private TextView temperturesubText;
+
+    private TextView humiditysubText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +77,18 @@ public class StatusActivity extends AppCompatActivity {
         tvStatus.setOnClickListener(tvClickListener);
         tvsubText = (TextView) findViewById(R.id.tvsubText);
 
+        airconStatus = (Switch) findViewById(R.id.airconStatus);
+        airconStatus.setOnClickListener(airconClickListener);
+        airconsubText = (TextView) findViewById(R.id.airconsubText);
+
+        windowStatus = (Switch) findViewById(R.id.windowStatus);
+        windowStatus.setOnClickListener(windowClickListener);
+        windowsubText = (TextView) findViewById(R.id.windowsubText);
+
+        temperturesubText = (TextView) findViewById(R.id.temperturesubText);
+
+        humiditysubText = (TextView) findViewById(R.id.humiditysubText);
+
         String clientId = MqttClient.generateClientId();
         client = new MqttAndroidClient(this.getApplicationContext(), serverurl,
                 clientId);
@@ -69,7 +102,7 @@ public class StatusActivity extends AppCompatActivity {
                     // We are connected
                     Toast.makeText(StatusActivity.this, "connected", Toast.LENGTH_SHORT).show();
                     mqttSub();
-                    TVmqttSub();
+                    arduinoSub();
                 }
 
                 @Override
@@ -90,24 +123,70 @@ public class StatusActivity extends AppCompatActivity {
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 String massage = new String(message.getPayload());
+
                 if(massage.contains("LED")) {
                     subText.setText(massage);
                 }else if(massage.contains("TV")){
                     tvsubText.setText(massage);
-                }
+                }else if(massage.contains("AIRCON")) {
+                    airconsubText.setText(massage);
+                }else if(massage.contains("WINDOW")) {
+                    windowsubText.setText(massage);
+                }else if(massage.contains("TEMPERTURE")) {
+                    temperturesubText.setText(massage);
+                }else if(massage.contains("HUMIDITY")) {
+                    humiditysubText.setText(massage);
+                }else {
+                    JSONArray jarray = new JSONArray(message);
 
-                if (subText.getText().equals("LED ON")) {
-                    ledStatus.setChecked(true);
-                } else if (subText.getText().equals("LED OFF")) {
-                    ledStatus.setChecked(false);
-                }
+                    for (int i = 0; i < jarray.length(); i++) {
+                        JSONObject jObject = jarray.getJSONObject(i);  // JSONObject 추출
+                        TV = jObject.getString("tv");
+                        AIRCON = jObject.getString("aircon");
+                        WINDOW = jObject.getString("window");
+                        TEMPERTURE = jObject.getString("temperture");
+                        HUMIDITY = jObject.getString("humidity");
 
-                if(tvsubText.getText().equals("TV ON")) {
-                    tvStatus.setChecked(true);
-                } else if (tvsubText.getText().equals("TV OFF")) {
-                    tvStatus.setChecked(false);
-                }
 
+                        if(TV.contains("TV")){
+                            tvsubText.setText(TV);
+                        }else if(AIRCON.contains("AIRCON")) {
+                            airconsubText.setText(AIRCON);
+                        }else if(WINDOW.contains("WINDOW")) {
+                            windowsubText.setText(WINDOW);
+                        }else if(TEMPERTURE.contains("TEMPERTURE")) {
+                            temperturesubText.setText(TEMPERTURE);
+                        }else if(HUMIDITY.contains("HUMIDITY")) {
+                            humiditysubText.setText(HUMIDITY);
+                        }
+
+                    }
+
+
+                    if (subText.getText().equals("LED ON")) {
+                        ledStatus.setChecked(true);
+                    } else if (subText.getText().equals("LED OFF")) {
+                        ledStatus.setChecked(false);
+                    }
+
+                    if (tvsubText.getText().equals("TV ON")) {
+                        tvStatus.setChecked(true);
+                    } else if (tvsubText.getText().equals("TV OFF")) {
+                        tvStatus.setChecked(false);
+                    }
+
+                    if (airconsubText.getText().equals("AIRCON ON")) {
+                        airconStatus.setChecked(true);
+                    } else if (airconsubText.getText().equals("AIRCON OFF")) {
+                        airconStatus.setChecked(false);
+                    }
+
+                    if (windowsubText.getText().equals("WINDOW OPEN")) {
+                        windowStatus.setChecked(true);
+                    } else if (windowsubText.getText().equals("WINDOW CLOSE")) {
+                        windowStatus.setChecked(false);
+                    }
+                }
             }
 
             @Override
@@ -143,17 +222,61 @@ public class StatusActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if(tvStatus.isChecked()) {
-                String message = "1";
+                String message = "tv1";
                 try {
-                    client.publish(tvtopic, message.getBytes(),0,false);
+                    client.publish(arduinotopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
             }
             else {
-                String message = "0";
+                String message = "tv0";
                 try {
-                    client.publish(tvtopic, message.getBytes(),0,false);
+                    client.publish(arduinotopic, message.getBytes(),0,false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    public View.OnClickListener airconClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(windowStatus.isChecked()) {
+                String message = "aircon1";
+                try {
+                    client.publish(arduinotopic, message.getBytes(),0,false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                String message = "aircon0";
+                try {
+                    client.publish(arduinotopic, message.getBytes(),0,false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    };
+
+    public View.OnClickListener windowClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if(windowStatus.isChecked()) {
+                String message = "window1";
+                try {
+                    client.publish(arduinotopic, message.getBytes(),0,false);
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                String message = "window0";
+                try {
+                    client.publish(arduinotopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -169,14 +292,17 @@ public class StatusActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    public void TVmqttSub(){
-        String topic = "tvstate";
+
+    public void arduinoSub() {
+        String topic = "arduinostate";
         try{
             client.subscribe(topic,0);
         }catch (MqttException e){
             e.printStackTrace();
         }
     }
+
+
 
     public  void conn(View view){
         try {
@@ -186,7 +312,8 @@ public class StatusActivity extends AppCompatActivity {
                 public void onSuccess(IMqttToken asyncActionToken) {
                     Toast.makeText(StatusActivity.this, "connected", Toast.LENGTH_SHORT).show();
                     mqttSub();
-                    TVmqttSub();
+                    arduinoSub();
+
                 }
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
