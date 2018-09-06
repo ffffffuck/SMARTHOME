@@ -1,11 +1,7 @@
 package com.example.lee.adfa;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Switch;
 import android.widget.TextView;
@@ -29,7 +25,7 @@ public class StatusActivity extends AppCompatActivity {
     MqttAndroidClient client;
 
     String topic = "nodemcu";
-    String arduinotopic = "arduino";
+    String androidtopic = "androidtopic";
 
     String TV;
     String AIRCON ;
@@ -203,6 +199,7 @@ public class StatusActivity extends AppCompatActivity {
                 String message = "1";
                 try {
                     client.publish(topic, message.getBytes(),0,false);
+
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -222,17 +219,17 @@ public class StatusActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if(tvStatus.isChecked()) {
-                String message = "tv1";
+                String message = "11";
                 try {
-                    client.publish(arduinotopic, message.getBytes(),0,false);
+                    client.publish(androidtopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
             }
             else {
-                String message = "tv0";
+                String message = "10";
                 try {
-                    client.publish(arduinotopic, message.getBytes(),0,false);
+                    client.publish(androidtopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -243,18 +240,18 @@ public class StatusActivity extends AppCompatActivity {
     public View.OnClickListener airconClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            if(windowStatus.isChecked()) {
-                String message = "aircon1";
+            if(airconStatus.isChecked()) {
+                String message = "21";
                 try {
-                    client.publish(arduinotopic, message.getBytes(),0,false);
+                    client.publish(androidtopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
             }
             else {
-                String message = "aircon0";
+                String message = "20";
                 try {
-                    client.publish(arduinotopic, message.getBytes(),0,false);
+                    client.publish(androidtopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
@@ -266,17 +263,17 @@ public class StatusActivity extends AppCompatActivity {
         @Override
         public void onClick(View v) {
             if(windowStatus.isChecked()) {
-                String message = "window1";
+                String message = "31";
                 try {
-                    client.publish(arduinotopic, message.getBytes(),0,false);
+                    client.publish(androidtopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
             }
             else {
-                String message = "window0";
+                String message = "32";
                 try {
-                    client.publish(arduinotopic, message.getBytes(),0,false);
+                    client.publish(androidtopic, message.getBytes(),0,false);
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
