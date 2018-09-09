@@ -99,6 +99,7 @@ public class StatusActivity extends AppCompatActivity {
                     Toast.makeText(StatusActivity.this, "connected", Toast.LENGTH_SHORT).show();
                     mqttSub();
                     arduinoSub();
+                    allPub();
                 }
 
                 @Override
@@ -120,19 +121,21 @@ public class StatusActivity extends AppCompatActivity {
             public void messageArrived(String topic, MqttMessage message) throws Exception {
                 String massage = new String(message.getPayload());
 
-                if(massage.contains("LED")) {
+                if (massage.contains("LED")) {
                     subText.setText(massage);
-                }else if(massage.contains("TV")){
+                } else if (massage.contains("TV")) {
                     tvsubText.setText(massage);
-                }else if(massage.contains("AIRCON")) {
+                } else if (massage.contains("AIRCON")) {
                     airconsubText.setText(massage);
-                }else if(massage.contains("WINDOW")) {
+                } else if (massage.contains("WINDOW")) {
                     windowsubText.setText(massage);
-                }else if(massage.contains("TEMPERTURE")) {
+                } else if (massage.contains("TEMPERTURE")) {
+                    massage = massage.substring(12);
                     temperturesubText.setText(massage);
-                }else if(massage.contains("HUMIDITY")) {
+                } else if (massage.contains("HUMIDITY")) {
+                    massage = massage.substring(10);
                     humiditysubText.setText(massage);
-                }else {
+                } else {
                     JSONArray jarray = new JSONArray(message);
 
                     for (int i = 0; i < jarray.length(); i++) {
@@ -143,45 +146,42 @@ public class StatusActivity extends AppCompatActivity {
                         TEMPERTURE = jObject.getString("temperture");
                         HUMIDITY = jObject.getString("humidity");
 
-
-                        if(TV.contains("TV")){
+                        if (TV.contains("TV")) {
                             tvsubText.setText(TV);
-                        }else if(AIRCON.contains("AIRCON")) {
+                        } else if (AIRCON.contains("AIRCON")) {
                             airconsubText.setText(AIRCON);
-                        }else if(WINDOW.contains("WINDOW")) {
+                        } else if (WINDOW.contains("WINDOW")) {
                             windowsubText.setText(WINDOW);
-                        }else if(TEMPERTURE.contains("TEMPERTURE")) {
+                        } else if (TEMPERTURE.contains("TEMPERTURE")) {
                             temperturesubText.setText(TEMPERTURE);
-                        }else if(HUMIDITY.contains("HUMIDITY")) {
+                        } else if (HUMIDITY.contains("HUMIDITY")) {
                             humiditysubText.setText(HUMIDITY);
                         }
-
                     }
+                }
 
+                if (subText.getText().equals("LED ON")) {
+                    ledStatus.setChecked(true);
+                } else if (subText.getText().equals("LED OFF")) {
+                    ledStatus.setChecked(false);
+                }
 
-                    if (subText.getText().equals("LED ON")) {
-                        ledStatus.setChecked(true);
-                    } else if (subText.getText().equals("LED OFF")) {
-                        ledStatus.setChecked(false);
-                    }
+                if (tvsubText.getText().equals("TV ON")) {
+                    tvStatus.setChecked(true);
+                } else if (tvsubText.getText().equals("TV OFF")) {
+                    tvStatus.setChecked(false);
+                }
 
-                    if (tvsubText.getText().equals("TV ON")) {
-                        tvStatus.setChecked(true);
-                    } else if (tvsubText.getText().equals("TV OFF")) {
-                        tvStatus.setChecked(false);
-                    }
+                if (airconsubText.getText().equals("AIRCON ON")) {
+                    airconStatus.setChecked(true);
+                } else if (airconsubText.getText().equals("AIRCON OFF")) {
+                    airconStatus.setChecked(false);
+                }
 
-                    if (airconsubText.getText().equals("AIRCON ON")) {
-                        airconStatus.setChecked(true);
-                    } else if (airconsubText.getText().equals("AIRCON OFF")) {
-                        airconStatus.setChecked(false);
-                    }
-
-                    if (windowsubText.getText().equals("WINDOW OPEN")) {
-                        windowStatus.setChecked(true);
-                    } else if (windowsubText.getText().equals("WINDOW CLOSE")) {
-                        windowStatus.setChecked(false);
-                    }
+                if (windowsubText.getText().equals("WINDOW OPEN")) {
+                    windowStatus.setChecked(true);
+                } else if (windowsubText.getText().equals("WINDOW CLOSE")) {
+                    windowStatus.setChecked(false);
                 }
             }
 
@@ -299,6 +299,15 @@ public class StatusActivity extends AppCompatActivity {
         }
     }
 
+    public void allPub(){
+        String message = "a";
+        try {
+            client.publish(androidtopic, message.getBytes(),0,false);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+
+    }
 
 
     public  void conn(View view){
@@ -310,6 +319,7 @@ public class StatusActivity extends AppCompatActivity {
                     Toast.makeText(StatusActivity.this, "connected", Toast.LENGTH_SHORT).show();
                     mqttSub();
                     arduinoSub();
+                    allPub();
 
                 }
                 @Override
